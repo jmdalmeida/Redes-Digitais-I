@@ -16,6 +16,7 @@ public class TxRxSystem {
 	static double DISTANCIA     = 1000.0; //metros 5000000
 	
 	static double Peb = 0.001;
+	static double DSum = 0.0;
 	
 	// Contadores Estatisticos	
     static double delayQ   = 0.0;
@@ -140,6 +141,8 @@ public class TxRxSystem {
 		s = s+"Numero medio de tramas na fila, Nq = "+(delayQ/Simulator.getClock())+"\n";
 		s = s+"Numero medio de tramas na fila ou a transmitir, Nqtx = "+(delayQtx/Simulator.getClock())+"\n";
 		s = s+"Numero medio de tramas no sistema total, Nsistema = "+(delaySys/Simulator.getClock())+"\n";
+		s = s+"Atraso médio de tansferência por trama, D = "+ (DSum/MAX_DATA) +"\n";
+		s = s+"Taxa de Utilizaçao do meio, U = "+ ((MAX_DATA*(DATA_SIZE/RITMO_BINARIO))/Simulator.getClock()) +"\n";
 		Simulator.info(s);
 	}
 		

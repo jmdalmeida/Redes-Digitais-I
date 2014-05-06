@@ -166,6 +166,7 @@ public class Transmiter {
 	public void acknowledge(Data data) {
 		TxRxSystem.delayQtx += Simulator.getClock() - data.getTimeStamp();
 		b++;
+		TxRxSystem.DSum += Simulator.getClock() + data.getTimeStamp();
 		if (b < TxRxSystem.MAX_DATA) {
 			TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock(),
 					TxRxEvent.TxRxEventType.Generate_DATA, null);
