@@ -79,7 +79,7 @@ public class Receiver {
 			System.out.print("Trama " + (data.getID()+1) + " is (0-correct, 1-incorrect)?: ");
 			int a = scanner.nextInt();
 			if (a == 0) {
-				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock(),
+				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock()+(TxRxSystem.DISTANCIA/TxRxSystem.vp),
 						TxRxEvent.TxRxEventType.ACK, data);
 				Simulator.addEvent(newEvent2);
 			}
@@ -88,10 +88,8 @@ public class Receiver {
 			double prob = sendParametersExperience(data);
 			Random random = new Random();
 			double r = random.nextDouble();
-			System.out.println("RANDOM: " + r);
-			System.out.println("PROB: " + prob);
 			if(r < prob) {
-				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock(),
+				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock() + (TxRxSystem.DISTANCIA/TxRxSystem.vp),
 						TxRxEvent.TxRxEventType.ACK, data);
 				Simulator.addEvent(newEvent2);
 			}

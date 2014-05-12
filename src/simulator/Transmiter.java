@@ -16,6 +16,8 @@ public class Transmiter {
 	State state;
 	LinkedList<Data> queue;
 	int b;
+	
+	TxRxEvent eventTimeout;
 
 	Transmiter(double binaryRate, double length) {
 
@@ -28,7 +30,9 @@ public class Transmiter {
 	}
 
 	public void arrivalData(Data data) {
-
+		if(state == State.ACK) {
+			state = State.IDLE;
+		}
 		// Output
 		String s = "";
 		s = "" + Simulator.getClock() + "\t" + "A" + "\t" + data.getID() + "\t";
@@ -39,12 +43,11 @@ public class Transmiter {
 				+ "\t" + "-" + "\t" + "-" + "\t" + queue.size() + "\t"
 				+ (queue.size() + tx);
 		Simulator.data(s);
-
 		// Seccao a completar
-		if (state == state.IDLE) {
+		if (state == State.IDLE) {
 			startTx(data);
-			state = state.TX;
-		} else if (state == state.TX) {
+			state = State.TX;
+		} else if (state == State.TX) {
 			queue.addLast(data);
 		}
 	}
@@ -68,13 +71,14 @@ public class Transmiter {
 		// Seccao a completar
 		double tProp = d / vp;
 		double ttx = TxRxSystem.DATA_SIZE / Rb;
-		TxRxEvent newEvent3 = new TxRxEvent(Simulator.getClock()
+		eventTimeout = new TxRxEvent(Simulator.getClock()
 				+ ((tProp * 2) + ttx) * 1.01, TxRxEvent.TxRxEventType.TIMEOUT,
 				data);
-		Simulator.addEvent(newEvent3);
+		Simulator.addEvent(eventTimeout);
 		TxRxEvent newEvent = new TxRxEvent(Simulator.getClock() + tProp,
 				TxRxEvent.TxRxEventType.StartRX, data);
 		Simulator.addEvent(newEvent);
+		System.out.println("Ttx: " + ttx);
 		TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock() + ttx,
 				TxRxEvent.TxRxEventType.StopTX, data);
 		Simulator.addEvent(newEvent2);
@@ -105,7 +109,7 @@ public class Transmiter {
 					TxRxEvent.TxRxEventType.StopRX, data);
 			Simulator.addEvent(newEvent);
 			if (queue.isEmpty()) {
-				state = state.IDLE;
+				state = State.IDLE;
 			} else if (!queue.isEmpty()) {
 				Data data2 = queue.removeFirst();
 				startTx(data2);
@@ -120,10 +124,7 @@ public class Transmiter {
 
 	public void timeout(Data data) {
 		if (state == State.ACK) {
-			// Update statistics
 			TxRxSystem.delayQtx += Simulator.getClock() - data.getTimeStamp();
-
-			// Output
 			String s = "";
 			s = "" + Simulator.getClock() + "\t" + "Etx" + "\t" + data.getID()
 					+ "\t";
@@ -135,26 +136,7 @@ public class Transmiter {
 			s = s + Simulator.getClock() + " Stop TX Data ID: " + data.getID()
 					+ "]";
 			Simulator.debug(s);
-
-			// Secção a completar
-			double tProp = d / vp;
-			double ttx = TxRxSystem.DATA_SIZE / Rb;
-			TxRxEvent newEvent3 = new TxRxEvent(Simulator.getClock()
-					+ ((tProp * 2) + ttx) * 1.01,
-					TxRxEvent.TxRxEventType.TIMEOUT, data);
-			Simulator.addEvent(newEvent3);
-			TxRxEvent newEvent = new TxRxEvent(Simulator.getClock() + tProp,
-					TxRxEvent.TxRxEventType.StartRX, data);
-			Simulator.addEvent(newEvent);
-			TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock() + ttx,
-					TxRxEvent.TxRxEventType.StopTX, data);
-			Simulator.addEvent(newEvent2);
-			if (queue.isEmpty()) {
-				state = State.IDLE;
-			} else if (!queue.isEmpty()) {
-				Data data2 = queue.removeFirst();
-				startTx(data2);
-			}
+			startTx(data);
 
 		} else {
 			Simulator.debug("Error on ACK");
@@ -164,14 +146,24 @@ public class Transmiter {
 	}
 
 	public void acknowledge(Data data) {
-		TxRxSystem.delayQtx += Simulator.getClock() - data.getTimeStamp();
+		Simulator.removeEvent(eventTimeout);
 		b++;
-		TxRxSystem.DSum += Simulator.getClock() + data.getTimeStamp();
+		TxRxSystem.DSum += (Simulator.getClock() - data.getTimeStamp());
+		state = State.IDLE;
+		TxRxSystem exp = new TxRxSystem();
+		if(TxRxSystem.simulacao) {
 		if (b < TxRxSystem.MAX_DATA) {
+			if (!exp.getExperiencia().equals("3")) {
+				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock(),
+						TxRxEvent.TxRxEventType.Generate_DATA, null);
+				Simulator.addEvent(newEvent2);
+			}
+		}
+		}
+		else {
 			TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock(),
 					TxRxEvent.TxRxEventType.Generate_DATA, null);
 			Simulator.addEvent(newEvent2);
-			state = State.IDLE;
 		}
 	}
 

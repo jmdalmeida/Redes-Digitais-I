@@ -16,13 +16,17 @@ public class TxRxSystem {
 	static double DISTANCIA = 1000.0; // metros 5000000
 
 	static double Peb = 0.001;
+	static double vp = 200000000.0;
 	static double DSum = 0.0;
 	static double RbPercentage = 0.0;
+	static double UFonte = 0.0;
+	static double RbFonte = 0.0;
 
 	// Contadores Estatisticos
 	static double delayQ = 0.0;
 	static double delayQtx = 0.0;
 	static double delaySys = 0.0;
+	static String experiencia = "";
 
 	static boolean demonstracao = false;
 	static boolean simulacao = false;
@@ -50,7 +54,7 @@ public class TxRxSystem {
 		} else if (ds.equals("S")) {
 			simulacao = true;
 			System.out.print("Experiencia (1 / 2 / 3)?: ");
-			String experiencia = scanner.nextLine();
+			experiencia = scanner.nextLine();
 			if (experiencia.equals("1")) {
 				System.out.print("Probabilidade de erro de bit?: ");
 				Peb = scanner.nextDouble();
@@ -73,9 +77,33 @@ public class TxRxSystem {
 				RbPercentage = scanner.nextDouble();
 				DISTANCIA = 100;
 				Peb = 0.001;
-				RITMO_BINARIO = 10000000.0*RbPercentage;
+				RITMO_BINARIO = 10000000.0 * RbPercentage;
 				MAX_DATA = 100000;
 				DATA_SIZE = 100;
+				double tpropag = 2 * (DISTANCIA / vp);
+				double tTx = DATA_SIZE / RITMO_BINARIO;
+				double Trtt = tTx + tpropag;
+				double probabilities = (32 * Math.pow(Peb, 3) * Math.pow(
+						(1 - Peb), DATA_SIZE - 3))
+						+ (153 * Math.pow(Peb, 4) * Math.pow((1 - Peb),
+								DATA_SIZE - 4))
+						+ (1014 * Math.pow(Peb, 5) * Math.pow((1 - Peb),
+								DATA_SIZE - 5))
+						+ (5420 * Math.pow(Peb, 6) * Math.pow((1 - Peb),
+								DATA_SIZE - 6))
+						+ (21287 * Math.pow(Peb, 7) * Math.pow((1 - Peb),
+								DATA_SIZE - 7))
+						+ (70575 * Math.pow(Peb, 8) * Math.pow((1 - Peb),
+								DATA_SIZE - 8))
+						+ (204361 * Math.pow(Peb, 9) * Math.pow((1 - Peb),
+								DATA_SIZE - 9))
+						+ (512312 * Math.pow(Peb, 10) * Math.pow((1 - Peb),
+								DATA_SIZE - 10))
+						+ Math.pow((1 - Peb), DATA_SIZE);
+				;
+				UFonte = tTx / (Trtt / probabilities);
+				RbFonte = UFonte * RITMO_BINARIO * RbPercentage;
+				INTERVAL = DATA_SIZE / RbFonte;
 
 			} else {
 				System.out.println("O programa vai terminar!");
@@ -136,8 +164,6 @@ public class TxRxSystem {
 				transmiter.timeout((Data) (current.data()));
 				break;
 			case ACK:
-				Simulator.removeEventByTemplate(new TxRxEvent(0.0,
-						TxRxEventType.TIMEOUT, (Data) (current.data())));
 				transmiter.acknowledge((Data) (current.data()));
 				break;
 			}
@@ -164,6 +190,10 @@ public class TxRxSystem {
 				+ ((MAX_DATA * (DATA_SIZE / RITMO_BINARIO)) / Simulator
 						.getClock()) + "\n";
 		Simulator.info(s);
+	}
+	
+	public String getExperiencia() {
+		return experiencia;
 	}
 
 }
