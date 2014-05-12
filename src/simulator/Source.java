@@ -45,7 +45,7 @@ public class Source {
 			double dataInterval = -meanDataInterval * Math.log(r);
 			if (getExperience().equals("3")) {
 				newEvent = new TxRxEvent(Simulator.getClock() + dataInterval,
-						TxRxEvent.TxRxEventType.Generate_DATA, null);
+						TxRxEvent.TxRxEventType.Generate_DATA, data);
 				Simulator.addEvent(newEvent);
 			} else {
 

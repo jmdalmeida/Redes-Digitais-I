@@ -78,7 +78,7 @@ public class TxRxSystem {
 				DISTANCIA = 100;
 				Peb = 0.001;
 				RITMO_BINARIO = 10000000.0 * RbPercentage;
-				MAX_DATA = 100000;
+				MAX_DATA = 10000;
 				DATA_SIZE = 100;
 				double tpropag = 2 * (DISTANCIA / vp);
 				double tTx = DATA_SIZE / RITMO_BINARIO;
@@ -185,6 +185,8 @@ public class TxRxSystem {
 				+ (delaySys / Simulator.getClock()) + "\n";
 		s = s + "Atraso médio de tansferência por trama, D = "
 				+ (DSum / MAX_DATA) + "\n";
+		s = s + "UFonte = "
+				+ (UFonte) + "\n";
 		s = s
 				+ "Taxa de Utilizaçao do meio, U = "
 				+ ((MAX_DATA * (DATA_SIZE / RITMO_BINARIO)) / Simulator
