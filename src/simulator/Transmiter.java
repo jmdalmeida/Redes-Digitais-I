@@ -1,9 +1,6 @@
 package simulator;
 
 import java.util.LinkedList;
-import java.util.Scanner;
-
-import simulator.TxRxEvent.TxRxEventType;
 
 public class Transmiter {
 	public enum State {

@@ -22,6 +22,7 @@ public class TxRxSystem {
 	static double RbPercentage = 0.0;
 	static double UFonte = 0.0;
 	static double RbFonte = 0.0;
+	static double DTeorico = 0.0;
 
 	// Contadores Estatisticos
 	static double delayQ = 0.0;
@@ -69,6 +70,13 @@ public class TxRxSystem {
 				DATA_SIZE = scanner.nextInt();
 				RITMO_BINARIO = 10000000.0;
 				MAX_DATA = 10000;
+				double tpropag = 2 * (DISTANCIA / vp);
+				double tTx = DATA_SIZE / RITMO_BINARIO;
+				double Trtt = tTx + tpropag;
+				double probabilities = getProbabilities(Peb);
+				UFonte = tTx / (Trtt / probabilities);
+				DTeorico = Trtt / probabilities;
+				
 			}
 
 			// Simulacao 2 -> Tabela 1 (ii)
@@ -81,6 +89,12 @@ public class TxRxSystem {
 				Peb = 0.001;
 				RITMO_BINARIO = 10000000.0;
 				MAX_DATA = 10000;// 10000
+				double tpropag = 2 * (DISTANCIA / vp);
+				double tTx = DATA_SIZE / RITMO_BINARIO;
+				double Trtt = tTx + tpropag;
+				double probabilities = getProbabilities(Peb);
+				UFonte = tTx / (Trtt / probabilities);
+				DTeorico = Trtt / probabilities;
 			}
 
 			// Simulacao 3 -> Tabela 2
@@ -100,6 +114,7 @@ public class TxRxSystem {
 				UFonte = tTx / (Trtt / probabilities);
 				RbFonte = UFonte * RITMO_BINARIO * RbPercentage;
 				INTERVAL = DATA_SIZE / RbFonte;
+				DTeorico = Trtt / probabilities;
 
 			} else {
 				System.out.println("O programa vai terminar!");
@@ -181,9 +196,8 @@ public class TxRxSystem {
 				+ (delaySys / Simulator.getClock()) + "\n";
 		s = s + "Atraso médio de tansferência por trama, D = "
 				+ (DSum / MAX_DATA) + "\n";
-		if (getExperiencia().equals("3")) {
-			s = s + "UFonte = " + (UFonte) + "\n";
-		}
+		s = s + "Teorico, U = "+ (UFonte) + "\n";
+		s = s + "Teorico, D = "+ (DTeorico) + "\n";
 		s = s
 				+ "Taxa de Utilizaçao do meio, U = "
 				+ ((MAX_DATA * (DATA_SIZE / RITMO_BINARIO)) / Simulator
