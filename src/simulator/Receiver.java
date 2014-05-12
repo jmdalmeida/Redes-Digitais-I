@@ -76,38 +76,46 @@ public class Receiver {
 		// demonstraçao/simulacao;
 		if (TxRxSystem.demonstracao) {
 			Scanner scanner = new Scanner(System.in);
-			System.out.print("Trama " + (data.getID()+1) + " is (0-correct, 1-incorrect)?: ");
+			System.out.print("Trama " + (data.getID() + 1)
+					+ " is (0-correct, 1-incorrect)?: ");
 			int a = scanner.nextInt();
 			if (a == 0) {
-				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock()+(TxRxSystem.DISTANCIA/TxRxSystem.vp),
+				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock()
+						+ (TxRxSystem.DISTANCIA / TxRxSystem.vp),
 						TxRxEvent.TxRxEventType.ACK, data);
 				Simulator.addEvent(newEvent2);
 			}
 		}
-		if(TxRxSystem.simulacao) {
-			double prob = sendParametersExperience(data);
+		if (TxRxSystem.simulacao) {
+			double Peb = TxRxSystem.Peb;
+			int crc = 8;
+			double total = 32 * Math.pow(Peb, 3)
+					* Math.pow((1 - Peb), data.getSize() + (crc - 3)) + 153
+					* Math.pow(Peb, 4)
+					* Math.pow((1 - Peb), data.getSize() + (crc - 4)) + 1014
+					* Math.pow(Peb, 5)
+					* Math.pow((1 - Peb), data.getSize() + (crc - 5)) + 5420
+					* Math.pow(Peb, 6)
+					* Math.pow((1 - Peb), data.getSize() + (crc - 6)) + 21287
+					* Math.pow(Peb, 7)
+					* Math.pow((1 - Peb), data.getSize() + (crc - 7)) + 70575
+					* Math.pow(Peb, 8)
+					* Math.pow((1 - Peb), data.getSize() + (crc - 8)) + 204361
+					* Math.pow(Peb, 9)
+					* Math.pow((1 - Peb), data.getSize() + (crc - 9)) + 512312
+					* Math.pow(Peb, 10)
+					* Math.pow((1 - Peb), data.getSize() + (crc - 10))
+					+ Math.pow((1 - Peb), data.getSize());
+
 			Random random = new Random();
 			double r = random.nextDouble();
-			if(r < prob) {
-				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock() + (TxRxSystem.DISTANCIA/TxRxSystem.vp),
+			if (r < total) {
+				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock()
+						+ (TxRxSystem.DISTANCIA / TxRxSystem.vp),
 						TxRxEvent.TxRxEventType.ACK, data);
 				Simulator.addEvent(newEvent2);
 			}
 		}
 
-	}
-	
-	public double sendParametersExperience(Data data) {
-		double Peb = TxRxSystem.Peb;
-		double total = (32*Math.pow(Peb, 3)*Math.pow((1-Peb), data.getSize()-3)) +
-				(153*Math.pow(Peb, 4)*Math.pow((1-Peb), data.getSize()-4)) +
-				(1014*Math.pow(Peb, 5)*Math.pow((1-Peb), data.getSize()-5)) +
-				(5420*Math.pow(Peb, 6)*Math.pow((1-Peb), data.getSize()-6)) + 
-				(21287*Math.pow(Peb, 7)*Math.pow((1-Peb), data.getSize()-7)) +
-				(70575*Math.pow(Peb, 8)*Math.pow((1-Peb), data.getSize()-8)) +
-				(204361*Math.pow(Peb, 9)*Math.pow((1-Peb), data.getSize()-9)) +
-				(512312*Math.pow(Peb, 10)*Math.pow((1-Peb), data.getSize()-10)) +
-				Math.pow((1-Peb), data.getSize());
-		return total;
 	}
 }

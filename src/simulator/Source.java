@@ -31,8 +31,8 @@ public class Source {
 		// Constant Size..
 		Random generator = new Random();
 		double rd = generator.nextDouble();
-		int dataSize = (int) (-meanDataSize * Math.log(rd));
-		Data data = new Data(Simulator.getClock(), sent, dataSize);
+		//int dataSize = (int) (-meanDataSize * Math.log(rd));
+		Data data = new Data(Simulator.getClock(), sent, meanDataSize);
 
 		TxRxEvent newEvent = new TxRxEvent(Simulator.getClock() + 0.0,
 				TxRxEvent.TxRxEventType.Arrival_DATA, data);
