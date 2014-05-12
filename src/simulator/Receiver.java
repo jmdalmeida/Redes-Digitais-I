@@ -54,6 +54,7 @@ public class Receiver {
 	public void stopRX(Data data) {
 		state = State.WAIT;
 
+		
 		// Update statistics
 		/*
 		 * Ao tempo total no sistema, delaySys Ã© adicionado o tempo passado no
@@ -62,6 +63,8 @@ public class Receiver {
 		 */
 		TxRxSystem.delaySys += Simulator.getClock() - data.getTimeStamp();
 
+		
+		
 		// Output
 		String s = "[Receiver@";
 		s = s + Simulator.getClock() + " Stop RX Data ID (State=" + state
@@ -72,13 +75,16 @@ public class Receiver {
 		s = s + data.getTimeStamp() + "\t" + "-" + "\t" + "-" + "\t" + "-"
 				+ "\t" + Simulator.getClock() + "\t" + "-" + "\t" + "-";
 		Simulator.data(s);
-		// Verificar se a trama está correcta de acordo com o boolean
-		// demonstraçao/simulacao;
+		
+		
+		//Verificacao se e demonstracao ou nao
 		if (TxRxSystem.demonstracao) {
 			Scanner scanner = new Scanner(System.in);
 			System.out.print("Trama " + (data.getID() + 1)
 					+ " is (0-correct, 1-incorrect)?: ");
 			int a = scanner.nextInt();
+			
+			//Verificar se a trama esta correcta
 			if (a == 0) {
 				TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock()
 						+ (TxRxSystem.DISTANCIA / TxRxSystem.vp),
@@ -86,27 +92,9 @@ public class Receiver {
 				Simulator.addEvent(newEvent2);
 			}
 		}
-		if (TxRxSystem.simulacao) {
+		if (!TxRxSystem.demonstracao) {
 			double Peb = TxRxSystem.Peb;
-			int crc = 8;
-			double total = 32 * Math.pow(Peb, 3)
-					* Math.pow((1 - Peb), data.getSize() + (crc - 3)) + 153
-					* Math.pow(Peb, 4)
-					* Math.pow((1 - Peb), data.getSize() + (crc - 4)) + 1014
-					* Math.pow(Peb, 5)
-					* Math.pow((1 - Peb), data.getSize() + (crc - 5)) + 5420
-					* Math.pow(Peb, 6)
-					* Math.pow((1 - Peb), data.getSize() + (crc - 6)) + 21287
-					* Math.pow(Peb, 7)
-					* Math.pow((1 - Peb), data.getSize() + (crc - 7)) + 70575
-					* Math.pow(Peb, 8)
-					* Math.pow((1 - Peb), data.getSize() + (crc - 8)) + 204361
-					* Math.pow(Peb, 9)
-					* Math.pow((1 - Peb), data.getSize() + (crc - 9)) + 512312
-					* Math.pow(Peb, 10)
-					* Math.pow((1 - Peb), data.getSize() + (crc - 10))
-					+ Math.pow((1 - Peb), data.getSize());
-
+			double total = TxRxSystem.getProbabilities(Peb);
 			Random random = new Random();
 			double r = random.nextDouble();
 			if (r < total) {
@@ -118,4 +106,5 @@ public class Receiver {
 		}
 
 	}
+	
 }

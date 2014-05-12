@@ -15,6 +15,7 @@ public class TxRxSystem {
 	static double RITMO_BINARIO = 100000.0;
 	static double DISTANCIA = 1000.0; // metros 5000000
 
+	// Outros Parametros
 	static double Peb = 0.001;
 	static double vp = 200000000.0;
 	static double DSum = 0.0;
@@ -28,17 +29,19 @@ public class TxRxSystem {
 	static double delaySys = 0.0;
 	static String experiencia = "";
 
+	// Booleans
 	static boolean demonstracao = false;
-	static boolean simulacao = false;
 
 	public static void main(String[] args) {
 		Simulator.setLogLevel(Simulator.LogLevel.FULLDEBUG);
-
 		Simulator.setDataFile("C:\\Users\\Filipe\\Desktop\\data.txt");
 
+		// Inicio da introducao de dados pelo utilizador
 		Scanner scanner = new Scanner(System.in);
 		System.out.print("Demonstraçao ou Simulaçao?(D / S): ");
 		String ds = scanner.nextLine();
+
+		// Demonstracao
 		if (ds.equals("D")) {
 			demonstracao = true;
 			System.out.print("Tamanho das tramas(m - bit)?: ");
@@ -50,19 +53,26 @@ public class TxRxSystem {
 			System.out
 					.print("Distancia entre Emissor e Receptor(d - metros)?: ");
 			DISTANCIA = scanner.nextDouble();
+		}
 
-		} else if (ds.equals("S")) {
-			simulacao = true;
+		// Simulacao
+		else if (ds.equals("S")) {
+			demonstracao = false;
 			System.out.print("Experiencia (1 / 2 / 3)?: ");
 			experiencia = scanner.nextLine();
+
+			// Simulacao 1 -> Tabela 1 (i)
 			if (experiencia.equals("1")) {
 				System.out.print("Probabilidade de erro de bit?: ");
 				Peb = scanner.nextDouble();
 				System.out.print("Tamanho das tramas(m - bit)?: ");
 				DATA_SIZE = scanner.nextInt();
 				RITMO_BINARIO = 10000000.0;
-				MAX_DATA = 10000;// 10000
-			} else if (experiencia.equals("2")) {
+				MAX_DATA = 10000;
+			}
+
+			// Simulacao 2 -> Tabela 1 (ii)
+			else if (experiencia.equals("2")) {
 				System.out.print("Tamanho das tramas(m - bit)?: ");
 				DATA_SIZE = scanner.nextInt();
 				System.out
@@ -71,7 +81,10 @@ public class TxRxSystem {
 				Peb = 0.001;
 				RITMO_BINARIO = 10000000.0;
 				MAX_DATA = 10000;// 10000
-			} else if (experiencia.equals("3")) {
+			}
+
+			// Simulacao 3 -> Tabela 2
+			else if (experiencia.equals("3")) {
 				System.out
 						.print("Percentagem ritmo binário(double - 1=100%)?: ");
 				RbPercentage = scanner.nextDouble();
@@ -83,24 +96,7 @@ public class TxRxSystem {
 				double tpropag = 2 * (DISTANCIA / vp);
 				double tTx = DATA_SIZE / RITMO_BINARIO;
 				double Trtt = tTx + tpropag;
-				double probabilities = (32 * Math.pow(Peb, 3) * Math.pow(
-						(1 - Peb), DATA_SIZE - 3))
-						+ (153 * Math.pow(Peb, 4) * Math.pow((1 - Peb),
-								DATA_SIZE - 4))
-						+ (1014 * Math.pow(Peb, 5) * Math.pow((1 - Peb),
-								DATA_SIZE - 5))
-						+ (5420 * Math.pow(Peb, 6) * Math.pow((1 - Peb),
-								DATA_SIZE - 6))
-						+ (21287 * Math.pow(Peb, 7) * Math.pow((1 - Peb),
-								DATA_SIZE - 7))
-						+ (70575 * Math.pow(Peb, 8) * Math.pow((1 - Peb),
-								DATA_SIZE - 8))
-						+ (204361 * Math.pow(Peb, 9) * Math.pow((1 - Peb),
-								DATA_SIZE - 9))
-						+ (512312 * Math.pow(Peb, 10) * Math.pow((1 - Peb),
-								DATA_SIZE - 10))
-						+ Math.pow((1 - Peb), DATA_SIZE);
-				;
+				double probabilities = getProbabilities(Peb);
 				UFonte = tTx / (Trtt / probabilities);
 				RbFonte = UFonte * RITMO_BINARIO * RbPercentage;
 				INTERVAL = DATA_SIZE / RbFonte;
@@ -185,17 +181,38 @@ public class TxRxSystem {
 				+ (delaySys / Simulator.getClock()) + "\n";
 		s = s + "Atraso médio de tansferência por trama, D = "
 				+ (DSum / MAX_DATA) + "\n";
-		s = s + "UFonte = "
-				+ (UFonte) + "\n";
+		if (getExperiencia().equals("3")) {
+			s = s + "UFonte = " + (UFonte) + "\n";
+		}
 		s = s
 				+ "Taxa de Utilizaçao do meio, U = "
 				+ ((MAX_DATA * (DATA_SIZE / RITMO_BINARIO)) / Simulator
 						.getClock()) + "\n";
 		Simulator.info(s);
 	}
-	
-	public String getExperiencia() {
+
+	public static String getExperiencia() {
 		return experiencia;
+	}
+
+	// Devolve a probabilidade calculada na primeira fase do trabalho a partir
+	// da expressao 2.8
+	public static double getProbabilities(double peb) {
+		int crc = 8;
+		return 32 * Math.pow(peb, 3)
+				* Math.pow((1 - peb), DATA_SIZE + (crc - 3)) + 153
+				* Math.pow(peb, 4) * Math.pow((1 - peb), DATA_SIZE + (crc - 4))
+				+ 1014 * Math.pow(peb, 5)
+				* Math.pow((1 - peb), DATA_SIZE + (crc - 5)) + 5420
+				* Math.pow(peb, 6) * Math.pow((1 - peb), DATA_SIZE + (crc - 6))
+				+ 21287 * Math.pow(Peb, 7)
+				* Math.pow((1 - peb), DATA_SIZE + (crc - 7)) + 70575
+				* Math.pow(peb, 8) * Math.pow((1 - peb), DATA_SIZE + (crc - 8))
+				+ 204361 * Math.pow(peb, 9)
+				* Math.pow((1 - peb), DATA_SIZE + (crc - 9)) + 512312
+				* Math.pow(peb, 10)
+				* Math.pow((1 - peb), DATA_SIZE + (crc - 10))
+				+ Math.pow((1 - peb), DATA_SIZE);
 	}
 
 }

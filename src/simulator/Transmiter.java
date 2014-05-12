@@ -12,7 +12,7 @@ public class Transmiter {
 
 	double Rb;
 	double d;
-	static double vp = 200000000.0; // vp = 2e8 m/s.
+	static double vp = 200000000.0;
 	State state;
 	LinkedList<Data> queue;
 	int b;
@@ -24,25 +24,23 @@ public class Transmiter {
 		Rb = binaryRate;
 		d = length;
 		b = 0;
-
 		queue = new LinkedList<Data>();
 		state = State.IDLE;
 	}
 
 	public void arrivalData(Data data) {
-//		if (state == State.ACK) {
-//			state = State.IDLE;
-//		}
 		// Output
 		String s = "";
 		s = "" + Simulator.getClock() + "\t" + "A" + "\t" + data.getID() + "\t";
 		int tx = 0;
-//		if (state == State.TX)
-//			tx = 1;
+		if (state == State.TX) {
+			tx = 1;
+		}
 		s = s + data.getTimeStamp() + "\t" + Simulator.getClock() + "\t" + "-"
 				+ "\t" + "-" + "\t" + "-" + "\t" + queue.size() + "\t"
 				+ (queue.size() + tx);
 		Simulator.data(s);
+		
 		// Seccao a completar
 		if (state == State.IDLE) {
 			startTx(data);
@@ -108,12 +106,6 @@ public class Transmiter {
 			TxRxEvent newEvent = new TxRxEvent(Simulator.getClock() + tProp,
 					TxRxEvent.TxRxEventType.StopRX, data);
 			Simulator.addEvent(newEvent);
-//			if (queue.isEmpty()) {
-//				state = State.IDLE;
-//			} else if (!queue.isEmpty()) {
-//				Data data2 = queue.removeFirst();
-//				startTx(data2);
-//			}
 
 		} else {
 			Simulator.debug("ERROR - not a valid state for action stopTx");
@@ -147,15 +139,14 @@ public class Transmiter {
 		Simulator.removeEvent(eventTimeout);
 		b++;
 		TxRxSystem.DSum += (Simulator.getClock() - data.getTimeStamp());
-		TxRxSystem exp = new TxRxSystem();
-		if (TxRxSystem.simulacao) {
+		if (!TxRxSystem.demonstracao) {
 			if (b < TxRxSystem.MAX_DATA) {
 				if (queue.isEmpty()) {
 					state = State.IDLE;
-					if (!exp.getExperiencia().equals("3")) {
-						TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock(),
+					if (!TxRxSystem.getExperiencia().equals("3")) {
+						TxRxEvent newEvent = new TxRxEvent(Simulator.getClock(),
 								TxRxEvent.TxRxEventType.Generate_DATA, null);
-						Simulator.addEvent(newEvent2);
+						Simulator.addEvent(newEvent);
 						
 					}
 				} else if (!queue.isEmpty()) {
@@ -164,9 +155,9 @@ public class Transmiter {
 				}
 			}
 		} else {
-			TxRxEvent newEvent2 = new TxRxEvent(Simulator.getClock(),
+			TxRxEvent newEvent = new TxRxEvent(Simulator.getClock(),
 					TxRxEvent.TxRxEventType.Generate_DATA, null);
-			Simulator.addEvent(newEvent2);
+			Simulator.addEvent(newEvent);
 			state = State.IDLE;
 		}
 		
